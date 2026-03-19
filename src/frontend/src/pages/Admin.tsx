@@ -26,9 +26,14 @@ export default function Admin() {
   const { content, updateContent } = useSiteContent();
 
   useEffect(() => {
-    createActorWithConfig().then((actor) => {
-      actor.isAdminClaimed().then((c) => setClaimed(c));
-    });
+    createActorWithConfig()
+      .then((actor) => {
+        return actor.isAdminClaimed().then((c) => setClaimed(c));
+      })
+      .catch((err) => {
+        console.error("Failed to check admin claimed status:", err);
+        setClaimed(false);
+      });
   }, []);
 
   if (claimed === null) {
