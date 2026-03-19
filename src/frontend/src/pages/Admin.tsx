@@ -3,17 +3,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { HttpAgent } from "@icp-sdk/core/agent";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { createActorWithConfig, loadConfig } from "../config";
+import { createActorWithConfig } from "../config";
 import { useSiteContent } from "../hooks/useSiteContent";
-import type {
-  PortfolioItem,
-  ResourceItem,
-  SiteContent,
-} from "../types/content";
-import { StorageClient } from "../utils/StorageClient";
+import type { ResourceItem, SiteContent } from "../types/content";
 
 type AdminState = "loading" | "unclaimed" | "login" | "dashboard";
 
@@ -26,7 +20,6 @@ export default function Admin() {
   const { content, updateContent } = useSiteContent();
 
   useEffect(() => {
-    // Check if already authenticated this session
     const sessionAuth = sessionStorage.getItem("admin_authed");
     if (sessionAuth === "true") {
       setAdminState("dashboard");
@@ -268,7 +261,6 @@ function Dashboard({
               "services",
               "resources",
               "substack",
-              "portfolio",
               "contact",
             ].map((tab, i) => (
               <TabsTrigger
@@ -296,9 +288,6 @@ function Dashboard({
           </TabsContent>
           <TabsContent value="substack">
             <SubstackTab content={content} updateContent={updateContent} />
-          </TabsContent>
-          <TabsContent value="portfolio">
-            <PortfolioTab content={content} updateContent={updateContent} />
           </TabsContent>
           <TabsContent value="contact">
             <ContactTab content={content} updateContent={updateContent} />
@@ -758,210 +747,6 @@ function SubstackTab({
         onClick={() => {
           updateContent({ ...content, substack: local });
           toast.success("Substack saved");
-        }}
-      />
-    </div>
-  );
-}
-
-async function createStorageClient(): Promise<StorageClient> {
-  const config = await loadConfig();
-  const agent = new HttpAgent({ host: config.backend_host });
-  if (config.backend_host?.includes("localhost")) {
-    await agent.fetchRootKey().catch(() => {});
-  }
-  return new StorageClient(
-    config.bucket_name,
-    config.storage_gateway_url,
-    config.backend_canister_id,
-    config.project_id,
-    agent,
-  );
-}
-
-function PortfolioTab({
-  content,
-  updateContent,
-}: { content: SiteContent; updateContent: (c: SiteContent) => Promise<void> }) {
-  const [local, setLocal] = useState(content.portfolio);
-  const [uploading, setUploading] = useState<"thumbnail" | "pdf" | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const item: PortfolioItem = local.item ?? {
-    title: "",
-    description: "",
-    thumbnailUrl: "",
-    pdfUrl: "",
-  };
-
-  const setItem = (patch: Partial<PortfolioItem>) => {
-    setLocal((prev) => ({
-      ...prev,
-      item: {
-        ...(prev.item ?? {
-          title: "",
-          description: "",
-          thumbnailUrl: "",
-          pdfUrl: "",
-        }),
-        ...patch,
-      },
-    }));
-  };
-
-  const handleUpload = async (file: File, kind: "thumbnail" | "pdf") => {
-    setUploading(kind);
-    setUploadProgress(0);
-    try {
-      const client = await createStorageClient();
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      const { hash } = await client.putFile(bytes, (pct) =>
-        setUploadProgress(pct),
-      );
-      const url = await client.getDirectURL(hash);
-      if (kind === "thumbnail") {
-        setItem({ thumbnailUrl: url });
-      } else {
-        setItem({ pdfUrl: url });
-      }
-      toast.success(`${kind === "thumbnail" ? "Thumbnail" : "PDF"} uploaded`);
-    } catch (e) {
-      console.error(e);
-      toast.error(`Failed to upload ${kind}`);
-    } finally {
-      setUploading(null);
-      setUploadProgress(0);
-    }
-  };
-
-  return (
-    <div>
-      <FieldGroup label="Section Heading">
-        <Input
-          className={inputClass}
-          value={local.heading}
-          onChange={(e) => setLocal({ ...local, heading: e.target.value })}
-        />
-      </FieldGroup>
-
-      <div className="border border-black p-5 mb-6">
-        <p
-          className="text-xs font-semibold uppercase tracking-widest text-black mb-6"
-          style={{ opacity: 0.4 }}
-        >
-          Portfolio item
-        </p>
-
-        <FieldGroup label="Title">
-          <Input
-            className={inputClass}
-            value={item.title}
-            onChange={(e) => setItem({ title: e.target.value })}
-            data-ocid="portfolio.input"
-          />
-        </FieldGroup>
-
-        <FieldGroup label="Description">
-          <Textarea
-            className={inputClass}
-            value={item.description}
-            onChange={(e) => setItem({ description: e.target.value })}
-            rows={3}
-            data-ocid="portfolio.textarea"
-          />
-        </FieldGroup>
-
-        <FieldGroup label="Thumbnail Image">
-          {item.thumbnailUrl && (
-            <div className="mb-3">
-              <img
-                src={item.thumbnailUrl}
-                alt="Thumbnail preview"
-                style={{
-                  width: "160px",
-                  height: "110px",
-                  objectFit: "cover",
-                  border: "1px solid #000",
-                  display: "block",
-                  marginBottom: "8px",
-                }}
-              />
-            </div>
-          )}
-          <label
-            className="btn-black inline-block cursor-pointer"
-            data-ocid="portfolio.upload_button"
-          >
-            {uploading === "thumbnail"
-              ? `Uploading… ${uploadProgress}%`
-              : item.thumbnailUrl
-                ? "Replace thumbnail"
-                : "Upload thumbnail"}
-            <input
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              disabled={uploading !== null}
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleUpload(f, "thumbnail");
-              }}
-            />
-          </label>
-        </FieldGroup>
-
-        <FieldGroup label="PDF File">
-          {item.pdfUrl && (
-            <p
-              className="text-xs text-black mb-3"
-              style={{ opacity: 0.6, wordBreak: "break-all" }}
-            >
-              Current:{" "}
-              <a
-                href={item.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "underline" }}
-              >
-                View PDF
-              </a>
-            </p>
-          )}
-          <label
-            className="btn-black inline-block cursor-pointer"
-            data-ocid="portfolio.upload_button"
-          >
-            {uploading === "pdf"
-              ? `Uploading… ${uploadProgress}%`
-              : item.pdfUrl
-                ? "Replace PDF"
-                : "Upload PDF"}
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              className="sr-only"
-              disabled={uploading !== null}
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleUpload(f, "pdf");
-              }}
-            />
-          </label>
-        </FieldGroup>
-      </div>
-
-      <SaveButton
-        onClick={() => {
-          const hasContent =
-            item.title.trim() ||
-            item.description.trim() ||
-            item.thumbnailUrl ||
-            item.pdfUrl;
-          const portfolioItem = hasContent ? item : null;
-          const updated = { ...local, item: portfolioItem };
-          setLocal(updated);
-          updateContent({ ...content, portfolio: updated });
-          toast.success("Portfolio saved");
         }}
       />
     </div>

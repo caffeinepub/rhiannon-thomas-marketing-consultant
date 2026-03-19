@@ -33,8 +33,4 @@ actor {
       case (?stored) stored == password;
     }
   };
-
-  public func resetAdmin() : async () {
-    adminPassword := null;
-  };
 };

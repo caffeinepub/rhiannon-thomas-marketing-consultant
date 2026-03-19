@@ -38,7 +38,6 @@ export default function Home() {
     { label: "Services", href: "#services" },
     { label: "Resources", href: "#resources" },
     { label: "Substack", href: "#substack" },
-    { label: "Portfolio", href: "#portfolio" },
     { label: "Contact", href: "#contact" },
   ];
 
@@ -452,9 +451,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 06 — Portfolio */}
+      {/* 06 — Contact */}
       <section
-        id="portfolio"
+        id="contact"
         className="relative bg-black overflow-hidden"
         style={{ minHeight: "60vh", display: "flex", alignItems: "center" }}
       >
@@ -472,133 +471,31 @@ export default function Home() {
             06
           </p>
           <h2
-            className="text-white mb-14"
-            style={{
-              fontSize: "clamp(2rem, 4.5vw, 3.5rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            {content.portfolio.heading}
-          </h2>
-
-          {content.portfolio.item === null ? (
-            <p
-              className="text-white"
-              data-ocid="portfolio.empty_state"
-              style={{ opacity: 0.4, fontSize: "1rem", fontWeight: 300 }}
-            >
-              No portfolio items yet.
-            </p>
-          ) : (
-            <div
-              className="flex flex-col md:flex-row gap-8 md:gap-12 items-start"
-              data-ocid="portfolio.card"
-              style={{
-                border: "1px solid rgba(255,255,255,0.15)",
-                padding: "2rem",
-              }}
-            >
-              <div style={{ flexShrink: 0 }}>
-                <img
-                  src={content.portfolio.item.thumbnailUrl}
-                  alt={content.portfolio.item.title}
-                  style={{
-                    width: "280px",
-                    height: "200px",
-                    objectFit: "cover",
-                    display: "block",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                  }}
-                />
-              </div>
-              <div
-                className="flex flex-col justify-between"
-                style={{ flex: 1 }}
-              >
-                <div>
-                  <h3
-                    className="text-white mb-4"
-                    style={{
-                      fontSize: "1.3rem",
-                      fontWeight: 700,
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {content.portfolio.item.title}
-                  </h3>
-                  <p
-                    className="text-white mb-8"
-                    style={{
-                      fontSize: "0.9rem",
-                      fontWeight: 300,
-                      lineHeight: 1.7,
-                      opacity: 0.7,
-                    }}
-                  >
-                    {content.portfolio.item.description}
-                  </p>
-                </div>
-                <a
-                  href={content.portfolio.item.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-white"
-                  data-ocid="portfolio.primary_button"
-                  style={{ alignSelf: "flex-start" }}
-                >
-                  View PDF →
-                </a>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 07 — Contact */}
-      <section
-        id="contact"
-        className="relative bg-white overflow-hidden"
-        style={{ minHeight: "60vh", display: "flex", alignItems: "center" }}
-      >
-        <span
-          className="ghost-number ghost-number-white"
-          style={{ top: "-4%", right: "-2%" }}
-        >
-          07
-        </span>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full py-28">
-          <p
-            className="text-xs font-semibold tracking-[0.2em] uppercase text-black mb-6"
-            style={{ opacity: 0.4 }}
-          >
-            07
-          </p>
-          <h2
             className="text-black mb-10"
             style={{
               fontSize: "clamp(2rem, 4.5vw, 3.5rem)",
               fontWeight: 700,
               letterSpacing: "-0.03em",
+              color: "#fff",
             }}
           >
             {content.contact.heading}
           </h2>
           <p
-            className="text-black mb-8"
+            className="text-white mb-8"
             style={{ fontSize: "1rem", fontWeight: 300, opacity: 0.65 }}
           >
             {content.contact.tagline}
           </p>
           <a
             href={`mailto:${content.contact.email}`}
-            className="text-black mb-10"
+            className="text-white mb-10"
             style={{
               fontSize: "clamp(1.2rem, 2.5vw, 2rem)",
               fontWeight: 600,
               letterSpacing: "-0.02em",
               textDecoration: "none",
-              borderBottom: "1px solid rgba(0,0,0,0.3)",
+              borderBottom: "1px solid rgba(255,255,255,0.3)",
               display: "inline-block",
               paddingBottom: "4px",
             }}
@@ -612,14 +509,14 @@ export default function Home() {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-black"
+                className="text-white"
                 style={{
                   fontSize: "0.9rem",
                   fontWeight: 500,
                   letterSpacing: "0.06em",
                   textTransform: "uppercase",
                   textDecoration: "none",
-                  borderBottom: "1px solid rgba(0,0,0,0.4)",
+                  borderBottom: "1px solid rgba(255,255,255,0.4)",
                   paddingBottom: "2px",
                   opacity: 0.8,
                 }}

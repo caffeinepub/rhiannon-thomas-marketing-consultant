@@ -6,13 +6,6 @@ export interface ResourceItem {
   url: string;
 }
 
-export interface PortfolioItem {
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  pdfUrl: string;
-}
-
 export interface SiteContent {
   hero: {
     headline: string;
@@ -42,10 +35,6 @@ export interface SiteContent {
     copy: string;
     ctaText: string;
     ctaLink: string;
-  };
-  portfolio: {
-    heading: string;
-    item: PortfolioItem | null;
   };
   contact: {
     heading: string;
@@ -101,10 +90,6 @@ export const DEFAULT_CONTENT: SiteContent = {
     copy: "I write about GTM strategy, positioning, and the messy reality of taking products to market. No fluff.",
     ctaText: "Read on Substack",
     ctaLink: "#",
-  },
-  portfolio: {
-    heading: "Portfolio",
-    item: null,
   },
   contact: {
     heading: "Get in touch",

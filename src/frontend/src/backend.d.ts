@@ -14,5 +14,4 @@ export interface backendInterface {
     isAdminClaimed: () => Promise<boolean>;
     claimAdmin: (password: string) => Promise<boolean>;
     verifyPassword: (password: string) => Promise<boolean>;
-    resetAdmin: () => Promise<void>;
 }
