@@ -92,6 +92,7 @@ export interface backendInterface {
     isAdminClaimed: () => Promise<boolean>;
     claimAdmin: (password: string) => Promise<boolean>;
     verifyPassword: (password: string) => Promise<boolean>;
+    resetAdmin: () => Promise<void>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
@@ -118,6 +119,10 @@ export class Backend implements backendInterface {
 
     async verifyPassword(password: string): Promise<boolean> {
         return this.actor.verifyPassword(password);
+    }
+
+    async resetAdmin(): Promise<void> {
+        return this.actor.resetAdmin();
     }
 }
 export interface CreateActorOptions {

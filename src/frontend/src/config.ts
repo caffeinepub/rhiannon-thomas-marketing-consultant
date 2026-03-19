@@ -16,7 +16,6 @@ interface JsonConfig {
   backend_canister_id: string;
   project_id: string;
   ii_derivation_origin: string;
-  storage_gateway_url?: string;
 }
 
 interface Config {
@@ -45,23 +44,13 @@ export async function loadConfig(): Promise<Config> {
       throw new Error("CANISTER_ID_BACKEND is not set");
     }
 
-    // Resolve the storage gateway URL: prefer env var, then env.json, then default
-    const storageGatewayUrl =
-      (process.env.STORAGE_GATEWAY_URL && process.env.STORAGE_GATEWAY_URL !== "nogateway"
-        ? process.env.STORAGE_GATEWAY_URL
-        : null) ??
-      (config.storage_gateway_url && config.storage_gateway_url !== "undefined"
-        ? config.storage_gateway_url
-        : null) ??
-      DEFAULT_STORAGE_GATEWAY_URL;
-
     const fullConfig = {
       backend_host:
         config.backend_host === "undefined" ? undefined : config.backend_host,
       backend_canister_id: (config.backend_canister_id === "undefined"
         ? backendCanisterId
         : config.backend_canister_id) as string,
-      storage_gateway_url: storageGatewayUrl,
+      storage_gateway_url: process.env.STORAGE_GATEWAY_URL ?? DEFAULT_STORAGE_GATEWAY_URL,
       bucket_name: DEFAULT_BUCKET_NAME,
       project_id:
         config.project_id !== "undefined"
