@@ -36,6 +36,12 @@ export interface SiteContent {
     ctaText: string;
     ctaLink: string;
   };
+  portfolio: {
+    heading: string;
+    cardTitle: string;
+    cardDescription: string;
+    pdfUrl: string;
+  };
   contact: {
     heading: string;
     email: string;
@@ -90,6 +96,13 @@ export const DEFAULT_CONTENT: SiteContent = {
     copy: "I write about GTM strategy, positioning, and the messy reality of taking products to market. No fluff.",
     ctaText: "Read on Substack",
     ctaLink: "#",
+  },
+  portfolio: {
+    heading: "Portfolio",
+    cardTitle: "Results & Case Studies",
+    cardDescription:
+      "A collection of campaigns, strategies, and measurable outcomes from my work with B2B clients.",
+    pdfUrl: "",
   },
   contact: {
     heading: "Get in touch",

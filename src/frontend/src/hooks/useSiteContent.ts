@@ -7,7 +7,17 @@ const STORAGE_KEY = "rt_site_content_cache";
 function loadCached(): SiteContent {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...DEFAULT_CONTENT, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw) as SiteContent;
+      return {
+        ...DEFAULT_CONTENT,
+        ...parsed,
+        portfolio: {
+          ...DEFAULT_CONTENT.portfolio,
+          ...(parsed.portfolio ?? {}),
+        },
+      };
+    }
   } catch {
     // ignore
   }
@@ -37,7 +47,14 @@ export function useSiteContent() {
             if (result && result.length > 0 && result[0]) {
               try {
                 const parsed = JSON.parse(result[0]) as SiteContent;
-                const merged = { ...DEFAULT_CONTENT, ...parsed };
+                const merged = {
+                  ...DEFAULT_CONTENT,
+                  ...parsed,
+                  portfolio: {
+                    ...DEFAULT_CONTENT.portfolio,
+                    ...(parsed.portfolio ?? {}),
+                  },
+                };
                 setContent(merged);
                 saveCache(merged);
               } catch {

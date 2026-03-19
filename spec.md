@@ -1,30 +1,26 @@
 # Rhiannon Thomas Marketing Consultant
 
 ## Current State
-Six-section personal site: Hero, Sprint, Services, Resources, Substack, Contact. Content managed via admin panel with password auth. No file upload capability. Sections alternate white/black backgrounds.
+The site has 6 sections: Hero, Sprint, Services, Resources, Substack, Contact. Each section is editable via the admin panel at /admin. Content is stored as JSON in the backend and cached in localStorage. No portfolio section exists.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Portfolio section (section 06) placed between Substack and Contact
-- Portfolio displays a single PDF with a thumbnail image, title, description, and a "View PDF" button
-- Admin can upload a thumbnail image and a PDF file via blob-storage, plus set title and description
-- Nav updated to include "Portfolio" link
-- Portfolio tab added to admin dashboard
+- Portfolio section (section 06) between Substack and Contact (Contact becomes 07)
+- Portfolio section displays a single card with: title, description, and a "View Portfolio" button linking to a PDF URL in a new tab
+- Portfolio tab in admin panel with fields: section heading, card title, card description, PDF URL
+- `portfolio` field to `SiteContent` type and `DEFAULT_CONTENT`
+- Nav link "Portfolio" added between Substack and Contact
 
 ### Modify
-- Contact section renumbered from 06 to 07
-- Contact background changes from black to white (to maintain alternating pattern)
-- Footer stays black
-- Section ghost numbers updated accordingly
-- Nav links updated (add Portfolio before Contact)
+- Contact section number updated from 06 to 07 (ghost number and label)
+- Section numbering in Home.tsx updated accordingly
+- Admin tabs updated to include Portfolio tab
 
 ### Remove
-- Nothing removed
+- Nothing
 
 ## Implementation Plan
-1. Select blob-storage component for PDF and thumbnail file uploads
-2. Update `types/content.ts` to add PortfolioItem type and portfolio field in SiteContent
-3. Update `Home.tsx`: add Portfolio section (06, black bg), renumber Contact to 07 (white bg), update nav
-4. Update `Admin.tsx`: add Portfolio tab with file upload for thumbnail + PDF, title and description fields
-5. Update DEFAULT_CONTENT with empty portfolio state
+1. Update `content.ts`: add `PortfolioContent` interface, add `portfolio` to `SiteContent`, add default portfolio content
+2. Update `Home.tsx`: add Portfolio section (black bg, ghost number 06), update Contact to 07, add Portfolio nav link
+3. Update `Admin.tsx`: add Portfolio tab and `PortfolioTab` component

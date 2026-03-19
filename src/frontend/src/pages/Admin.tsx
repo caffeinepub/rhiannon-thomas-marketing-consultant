@@ -261,6 +261,7 @@ function Dashboard({
               "services",
               "resources",
               "substack",
+              "portfolio",
               "contact",
             ].map((tab, i) => (
               <TabsTrigger
@@ -288,6 +289,9 @@ function Dashboard({
           </TabsContent>
           <TabsContent value="substack">
             <SubstackTab content={content} updateContent={updateContent} />
+          </TabsContent>
+          <TabsContent value="portfolio">
+            <PortfolioTab content={content} updateContent={updateContent} />
           </TabsContent>
           <TabsContent value="contact">
             <ContactTab content={content} updateContent={updateContent} />
@@ -747,6 +751,56 @@ function SubstackTab({
         onClick={() => {
           updateContent({ ...content, substack: local });
           toast.success("Substack saved");
+        }}
+      />
+    </div>
+  );
+}
+
+function PortfolioTab({
+  content,
+  updateContent,
+}: { content: SiteContent; updateContent: (c: SiteContent) => Promise<void> }) {
+  const [local, setLocal] = useState(content.portfolio);
+  return (
+    <div>
+      <FieldGroup label="Heading">
+        <Input
+          className={inputClass}
+          value={local.heading}
+          onChange={(e) => setLocal({ ...local, heading: e.target.value })}
+          data-ocid="portfolio.input"
+        />
+      </FieldGroup>
+      <FieldGroup label="Card Title">
+        <Input
+          className={inputClass}
+          value={local.cardTitle}
+          onChange={(e) => setLocal({ ...local, cardTitle: e.target.value })}
+        />
+      </FieldGroup>
+      <FieldGroup label="Card Description">
+        <Textarea
+          className={inputClass}
+          value={local.cardDescription}
+          onChange={(e) =>
+            setLocal({ ...local, cardDescription: e.target.value })
+          }
+          rows={3}
+        />
+      </FieldGroup>
+      <FieldGroup label="PDF URL">
+        <Input
+          className={inputClass}
+          value={local.pdfUrl}
+          onChange={(e) => setLocal({ ...local, pdfUrl: e.target.value })}
+          placeholder="https://..."
+        />
+      </FieldGroup>
+      <SaveButton
+        onClick={() => {
+          updateContent({ ...content, portfolio: local });
+          toast.success("Portfolio saved");
         }}
       />
     </div>
