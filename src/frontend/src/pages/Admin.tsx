@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { HttpAgent } from "@icp-sdk/core/agent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createActorWithConfig, loadConfig } from "../config";
 import { useSiteContent } from "../hooks/useSiteContent";
@@ -15,8 +15,201 @@ import type {
 } from "../types/content";
 import { StorageClient } from "../utils/StorageClient";
 
+type AdminState = "loading" | "unclaimed" | "login" | "dashboard";
+
 export default function Admin() {
+  const [adminState, setAdminState] = useState<AdminState>("loading");
+  const [password, setPassword] = useState("");
+  const [claimPassword, setClaimPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [busy, setBusy] = useState(false);
   const { content, updateContent } = useSiteContent();
+
+  useEffect(() => {
+    // Check if already authenticated this session
+    const sessionAuth = sessionStorage.getItem("admin_authed");
+    if (sessionAuth === "true") {
+      setAdminState("dashboard");
+      return;
+    }
+
+    createActorWithConfig()
+      .then((actor) => actor.isAdminClaimed())
+      .then((claimed) => {
+        setAdminState(claimed ? "login" : "unclaimed");
+      })
+      .catch(() => {
+        setAdminState("login");
+      });
+  }, []);
+
+  const handleClaim = async () => {
+    if (!claimPassword.trim()) {
+      toast.error("Password cannot be empty");
+      return;
+    }
+    if (claimPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setBusy(true);
+    try {
+      const actor = await createActorWithConfig();
+      const ok = await actor.claimAdmin(claimPassword);
+      if (ok) {
+        sessionStorage.setItem("admin_authed", "true");
+        setAdminState("dashboard");
+        toast.success("Admin claimed -- you are now the site owner");
+      } else {
+        toast.error("Admin has already been claimed");
+        setAdminState("login");
+      }
+    } catch {
+      toast.error("Failed to claim admin");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!password.trim()) {
+      toast.error("Enter your password");
+      return;
+    }
+    setBusy(true);
+    try {
+      const actor = await createActorWithConfig();
+      const ok = await actor.verifyPassword(password);
+      if (ok) {
+        sessionStorage.setItem("admin_authed", "true");
+        setAdminState("dashboard");
+      } else {
+        toast.error("Incorrect password");
+      }
+    } catch {
+      toast.error("Failed to verify password");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (adminState === "loading") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-black text-sm" style={{ opacity: 0.5 }}>
+          Loading...
+        </p>
+      </div>
+    );
+  }
+
+  if (adminState === "unclaimed") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div style={{ width: "100%", maxWidth: "380px" }}>
+          <h1
+            className="text-black mb-2"
+            style={{
+              fontSize: "1.4rem",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Claim admin
+          </h1>
+          <p
+            className="text-black mb-8 text-sm"
+            style={{ opacity: 0.5, lineHeight: 1.6 }}
+          >
+            Set a password to become the permanent site admin. This can only be
+            done once.
+          </p>
+          <div className="mb-4">
+            <Label
+              className="text-xs font-semibold uppercase tracking-widest text-black mb-2 block"
+              style={{ opacity: 0.5 }}
+            >
+              Password
+            </Label>
+            <Input
+              type="password"
+              className="rounded-none border-black focus-visible:ring-0 focus-visible:border-black bg-white text-black"
+              value={claimPassword}
+              onChange={(e) => setClaimPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleClaim()}
+            />
+          </div>
+          <div className="mb-8">
+            <Label
+              className="text-xs font-semibold uppercase tracking-widest text-black mb-2 block"
+              style={{ opacity: 0.5 }}
+            >
+              Confirm password
+            </Label>
+            <Input
+              type="password"
+              className="rounded-none border-black focus-visible:ring-0 focus-visible:border-black bg-white text-black"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleClaim()}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn-black w-full"
+            onClick={handleClaim}
+            disabled={busy}
+          >
+            {busy ? "Claiming..." : "Claim admin"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (adminState === "login") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div style={{ width: "100%", maxWidth: "380px" }}>
+          <h1
+            className="text-black mb-8"
+            style={{
+              fontSize: "1.4rem",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Admin
+          </h1>
+          <div className="mb-8">
+            <Label
+              className="text-xs font-semibold uppercase tracking-widest text-black mb-2 block"
+              style={{ opacity: 0.5 }}
+            >
+              Password
+            </Label>
+            <Input
+              type="password"
+              className="rounded-none border-black focus-visible:ring-0 focus-visible:border-black bg-white text-black"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              autoFocus
+            />
+          </div>
+          <button
+            type="button"
+            className="btn-black w-full"
+            onClick={handleLogin}
+            disabled={busy}
+          >
+            {busy ? "Checking..." : "Log in"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return <Dashboard content={content} updateContent={updateContent} />;
 }
 
@@ -32,13 +225,26 @@ function Dashboard({
       <header className="bg-white border-b border-black sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 md:px-12 h-14 flex items-center justify-between">
           <span className="text-black text-sm font-medium">Admin</span>
-          <a
-            href="/"
-            className="text-black text-xs"
-            style={{ opacity: 0.5, textDecoration: "none" }}
-          >
-            ← Back to site
-          </a>
+          <div className="flex items-center gap-6">
+            <button
+              type="button"
+              className="text-black text-xs"
+              style={{ opacity: 0.5 }}
+              onClick={() => {
+                sessionStorage.removeItem("admin_authed");
+                window.location.reload();
+              }}
+            >
+              Log out
+            </button>
+            <a
+              href="/"
+              className="text-black text-xs"
+              style={{ opacity: 0.5, textDecoration: "none" }}
+            >
+              ← Back to site
+            </a>
+          </div>
         </div>
       </header>
 
