@@ -7,6 +7,7 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import Admin from "./pages/Admin";
+import AdminReset from "./pages/AdminReset";
 import Home from "./pages/Home";
 
 const rootRoute = createRootRoute({
@@ -28,8 +29,17 @@ const adminRoute = createRoute({
   path: "/admin",
   component: Admin,
 });
+const adminResetRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin-reset",
+  component: AdminReset,
+});
 
-const routeTree = rootRoute.addChildren([indexRoute, adminRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  adminRoute,
+  adminResetRoute,
+]);
 const router = createRouter({ routeTree });
 
 declare module "@tanstack/react-router" {

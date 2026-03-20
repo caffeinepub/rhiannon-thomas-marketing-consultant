@@ -12,6 +12,7 @@ export interface _SERVICE {
     isAdminClaimed: ActorMethod<[], boolean>;
     claimAdmin: ActorMethod<[string], boolean>;
     verifyPassword: ActorMethod<[string], boolean>;
+    resetAdmin: ActorMethod<[], void>;
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

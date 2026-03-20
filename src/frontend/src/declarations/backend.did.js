@@ -10,6 +10,7 @@ export const idlService = IDL.Service({
     isAdminClaimed: IDL.Func([], [IDL.Bool], ['query']),
     claimAdmin: IDL.Func([IDL.Text], [IDL.Bool], []),
     verifyPassword: IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+    resetAdmin: IDL.Func([], [], []),
 });
 
 export const idlInitArgs = [];
@@ -21,6 +22,7 @@ export const idlFactory = ({ IDL }) => {
         isAdminClaimed: IDL.Func([], [IDL.Bool], ['query']),
         claimAdmin: IDL.Func([IDL.Text], [IDL.Bool], []),
         verifyPassword: IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+        resetAdmin: IDL.Func([], [], []),
     });
 };
 
